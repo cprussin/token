@@ -2,6 +2,8 @@
 
 http://rubygems.org/gems/token
 
+[![Gem Version](https://badge.fury.io/rb/token.svg)](http://badge.fury.io/rb/token)
+
 ## Description
 
 Token is a library that generates and verifies cryptographically secure, signed
