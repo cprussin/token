@@ -44,9 +44,9 @@ initialization vector by using `Token.reset`.
 
 When tokens are generated, three parameters must by specified:
 
- * An integer payload.  The intent of this field is to be used as a uid.  This
+ * An integer payload.  The intent of this field is to be used as a UID.  This
    value is returned upon successful token verification.
- * The ip address to assign to this token.
+ * The IP address to assign to this token.
  * The `Time` after which verification of this token should fail.
 
 An example of generating a token is:
@@ -94,7 +94,8 @@ iv  = OpenSSL::Cipher.new('AES-128-CFB').random_iv
 tok = Token.new('AES-128-CFB', key: key, iv: iv)
 
 token = tok.generate(0, '0.0.0.0', Time.now + 5)
+tok.verify(token, '0.0.0.0')  # => 0
 ```
 
 If you call `Token.new` without any arguments then it will create a Token class
-with the default cipher, (random) key, and (random) initialization vector.
+with the default cipher, a random key, and a random initialization vector.
