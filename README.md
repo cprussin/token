@@ -1,4 +1,4 @@
-# Accessible Hash
+# Token
 
 http://rubygems.org/gems/token
 
