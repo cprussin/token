@@ -97,13 +97,13 @@ class Token
 		end
 
 		# Allow generate to be called on the class
-		def generate(*args)
-			instance.generate(*args)
+		def generate(uid, ip, expires)
+			instance.generate(uid, ip, expires)
 		end
 
 		# Allow verify to be called on the class
-		def verify(*args)
-			instance.verify(*args)
+		def verify(token, ip, extension_expires = nil)
+			instance.verify(token, ip, extension_expires)
 		end
 
 		# Reset class parameters to defaults
