@@ -66,9 +66,21 @@ describe Token do
 	end
 
 	context 'with instances of Token' do
-		it_behaves_like 'a token generator' do
-			let!(:generator) {Token.new}
-			let!(:token) {generator.generate(0, '0.0.0.0', Time.now + 1)}
+		let(:generator1) {Token.new}
+		let(:generator2) {Token.new('DES3')}
+
+		context 'with default parameters' do
+			it_behaves_like 'a token generator' do
+				let!(:generator) {generator1}
+				let!(:token) {generator.generate(0, '0.0.0.0', Time.now + 1)}
+			end
+		end
+
+		context 'with custom parameters' do
+			it_behaves_like 'a token generator' do
+				let!(:generator) {generator2}
+				let!(:token) {generator.generate(0, '0.0.0.0', Time.now + 1)}
+			end
 		end
 	end
 end

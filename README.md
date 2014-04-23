@@ -86,7 +86,7 @@ Token.verify(token, '0.0.0.0', Time.now + 5)  # => [0, "..."]
 
 You can create instances of the `Token` class and use the instances to generate
 and verify tokens.  This is useful if you use tokens for multiple purposes in
-your application.
+your application and each purpose uses different cryptographic parameters.
 
 ```ruby
 key = OpenSSL::Cipher.new('AES-128-CFB').random_key
