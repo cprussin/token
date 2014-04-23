@@ -5,10 +5,10 @@ http://rubygems.org/gems/token
 ## Description
 
 Token is a library that generates and verifies cryptographically secure, signed
-expiring tokens.  The tokens contain an integer payload, which is intended to
-be used as a UID field.  When verifying a token, the token is checked to ensure
-that they it is not expired and that the IP address issuing the verification is
-the same as the one that generated the token.
+tokens.  The tokens contain an integer payload, which is intended to be used as
+a UID field.  When verifying a token, the token is checked to ensure that they
+it is not expired and that the IP address issuing the verification is the same
+as the one that generated the token.
 
 ## Install
 
