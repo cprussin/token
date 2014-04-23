@@ -1,8 +1,6 @@
 # Token
 
-http://rubygems.org/gems/token
-
-[![Gem Version](https://badge.fury.io/rb/token.svg)](http://badge.fury.io/rb/token)
+[![Gem Version](https://badge.fury.io/rb/token.svg)](http://rubygems.org/gems/token)
 
 ## Description
 
