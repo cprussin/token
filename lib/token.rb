@@ -22,15 +22,13 @@ class Token
 		end
 	end
 
-	# Creates a token consisting of the given payload, ip address, and expiration
-	# date.
-	def generate(payload, ip, expires)
+	# Creates a token consisting of the given payload and expiration date.
+	def generate(payload, expires)
 		token = [
-			ip.split('.').map(&:to_i),
 			expires.to_i,
 			payload
 		]
-		token = token.flatten.pack("CCCCL#{@payload_spec}")
+		token = token.flatten.pack("L#{@payload_spec}")
 
 		# Prepend the token's hash
 		token.prepend(Digest::SHA256.hexdigest(token))
@@ -43,36 +41,32 @@ class Token
 		token = crypt.update(token) + crypt.final
 	end
 
-	# Verifies the validity of the given token and ip and returns the associated
-	# payload and a replacement token, if successful.
-	def verify(token, ip, extension_expires = nil)
+	# Verifies the validity of the given token and returns the associated payload
+	# and a replacement token, if successful.
+	def verify(token)
 
 		# Decrypt the token
-		crypt = OpenSSL::Cipher.new(@cipher)
-		crypt.decrypt
-		crypt.key = @key
-		crypt.iv = @iv
-		tok = crypt.update(token) + crypt.final
-
-		# Split the token
-		tok = tok.unpack("A64CCCCL#{@payload_spec}")
-
-		# Validate the token
-		time_valid = Time.at(tok[5]) > Time.now
-		ip_valid = ip == tok[1..4].join('.')
-		hash = Digest::SHA256.hexdigest(tok[1..-1].pack("CCCCL#{@payload_spec}"))
-		hash_valid = hash == tok[0]
-		unless time_valid && ip_valid && hash_valid
+		begin
+			crypt = OpenSSL::Cipher.new(@cipher)
+			crypt.decrypt
+			crypt.key = @key
+			crypt.iv = @iv
+			tok = crypt.update(token) + crypt.final
+		rescue
 			raise Error, 'Session is invalid'
 		end
 
-		# Return the payload and the replacement token
-		payload = tok.length == 7 ? tok.last : tok[6..-1]
-		if !extension_expires.nil?
-			[payload, generate(payload, ip, extension_expires)]
-		else
-			payload
-		end
+		# Split the token
+		tok = tok.unpack("A64L#{@payload_spec}")
+
+		# Validate the token
+		time_valid = Time.at(tok[1]) > Time.now
+		hash = Digest::SHA256.hexdigest(tok[1..-1].pack("L#{@payload_spec}"))
+		hash_valid = hash == tok[0]
+		raise Error, 'Session is invalid' unless time_valid && hash_valid
+
+		# Return the payload
+		tok.length == 3 ? tok.last : tok[2..-1]
 	end
 
 	class << self
@@ -105,13 +99,13 @@ class Token
 		end
 
 		# Allow generate to be called on the class
-		def generate(payload, ip, expires)
-			instance.generate(payload, ip, expires)
+		def generate(payload, expires)
+			instance.generate(payload, expires)
 		end
 
 		# Allow verify to be called on the class
-		def verify(token, ip, extension_expires = nil)
-			instance.verify(token, ip, extension_expires)
+		def verify(token)
+			instance.verify(token)
 		end
 
 		# Reset class parameters to defaults

@@ -43,43 +43,28 @@ initialization vector by using `Token.reset`.
 
 ### Generate a Token
 
-When tokens are generated, three parameters must by specified:
+When tokens are generated, two parameters must by specified:
 
  * A payload.  By default, this is a single integer value.
- * The IP address to assign to this token.
  * The `Time` after which verification of this token should fail.
 
 An example of generating a token is:
 
 ```ruby
 in_one_day = Time.now + 60 * 60 * 24
-token = Token.generate(0, '0.0.0.0', in_one_day)
+token = Token.generate(0, in_one_day)
 ```
 
 ### Verify a token
 
-When verifying a token, the token is checked to ensure that it is not expired
-and that the IP address issuing the verification is the same as the
-one that generated the token.
+When verifying a token, the token is checked to ensure that it is not expired.
 
 ```ruby
-token = Token.generate(0, '0.0.0.0', Time.now + 2)
+token = Token.generate(0, Time.now + 2)
 
-Token.verify(token, '0.0.0.1')  # raises Token::Error
-Token.verify(token, '0.0.0.0')  # => 0
+Token.verify(token)  # => 0
 sleep 2
-Token.verify(token, '0.0.0.0')  # raises Token::Error
-```
-
-If given an extended expiration date when verifying a token, the library will
-generate a replacement token with that expiration date.  This can be used to
-expire tokens after a timeout after the user is finished using the service
-issuing the tokens.
-
-```ruby
-token = Token.generate(0, '0.0.0.0', Time.now + 5)
-
-Token.verify(token, '0.0.0.0', Time.now + 5)  # => [0, "..."]
+Token.verify(token)  # raises Token::Error
 ```
 
 ### Modify the Payload Format
@@ -94,15 +79,16 @@ formats, modify the `payload_spec` parameter.  This parameter should be in the
 same format as expected by `Array.pack`.  The default value is `'L'`.
 
 ```ruby
-Token.payload_spec = 'LA*'
-token = Token.generate([0, 'foo'], '0.0.0.0', Time.now + 5)
-Token.verify(token, '0.0.0.0')                # => [0, 'foo']
-Token.verify(token, '0.0.0.0', Time.now + 5)  # => [[0, 'foo'], "..."]
+Token.payload_spec = 'LCCCCA*'
+ip_address = '0.0.0.0'.split('.').map(&:to_i)
+token = Token.generate([15, ip_address, 'foo'], Time.now + 5)
+Token.verify(token)  # => [15, 0, 0, 0, 0, 'foo']
 ```
 
 Note that if the `payload_spec` only contains a single field, then the payload
 argument to `Token.generate` can be a scalar. Otherwise, the argument must be
-an array.
+an array.  The array will be automatically flattened when generating the token,
+and `verify` will always return a flat array.
 
 ### Instances of the Token Class
 
@@ -112,12 +98,22 @@ your application and each purpose uses different cryptographic parameters or
 payload formats.
 
 ```ruby
-key = OpenSSL::Cipher.new('AES-128-CFB').random_key
-iv  = OpenSSL::Cipher.new('AES-128-CFB').random_iv
-tok = Token.new('AES-128-CFB', key: key, iv: iv)
+aes_key = OpenSSL::Cipher.new('AES-128-CFB').random_key
+aes_iv  = OpenSSL::Cipher.new('AES-128-CFB').random_iv
+aes     = Token.new('AES-128-CFB', key: aes_key, iv: aes_iv)
 
-token = tok.generate(0, '0.0.0.0', Time.now + 5)
-tok.verify(token, '0.0.0.0')  # => 0
+des_key = OpenSSL::Cipher.new('DES3').random_key
+des_iv  = OpenSSL::Cipher.new('DES3').random_iv
+des     = Token.new('DES3', key: des_key, iv: des_iv)
+
+aes_token = aes.generate(0, Time.now + 5)
+des_token = des.generate(0, Time.now + 5)
+
+aes.verify(aes_token)  # => 0
+des.verify(des_token)  # => 0
+
+aes.verify(des_token)  # => raises Token::Error
+des.verify(aes_token)  # => raises Token::Error
 ```
 
 If you call `Token.new` without any arguments then it will create a Token class
