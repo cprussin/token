@@ -72,7 +72,7 @@ describe Token do
 
 	context 'with instances of Token' do
 		let(:generator1) {Token.new}
-		let(:generator2) {Token.new('DES3')}
+		let(:generator2) {Token.new(cipher: 'DES3')}
 
 		context 'with default parameters' do
 			it_behaves_like 'a token generator' do

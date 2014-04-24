@@ -1,29 +1,57 @@
 require 'openssl'
 
-# This class provides token creation and validation.
+# This class provides token creation and validation.  It can be used as a
+# singleton or by creating instances.
 class Token
-	class Error < Exception; end
-
 	attr_accessor :cipher, :key, :iv, :payload_spec
 
-	# Create a new token generator.
-	def initialize(cipher = nil, options = {})
-		if cipher.nil?
-			@cipher       = self.class.cipher
-			@key          = self.class.key
-			@iv           = self.class.iv
-			@payload_spec = options[:payload_spec] || self.class.payload_spec
+	# All token errors raise an exception of this class.
+	class Error < Exception; end
+
+	# Creates a new token generator.
+	#
+	# @param options [Hash] options to modify the default behavior of the token
+	#   generator
+	# @option options [String] :cipher The cipher to use with OpenSSL.  Defaults
+	#   to 'AES-256-CFB'
+	# @option options [String] :key The key to use with OpenSSL.  Defaults to a
+	#   random key.  Do not specify without also specifying cipher
+	# @option options [String] :iv The initialization vector to use with OpenSSL.
+	#   Defaults to a random vector.  Do not specify without also specifying
+	#   cipher
+	# @option options [String] :payload_spec The specification describing the
+	#   format of the payloads.  Should be in the format expected by Array.pack.
+	#   Defaults to 'L'
+	def initialize(options = {})
+
+		# Check to see if there are custom cryptographic settings
+		if options.has_key? :cipher
+			@cipher = options[:cipher]
+			cipher  = OpenSSL::Cipher.new(@cipher)
+			@key    = options[:key] || cipher.random_key
+			@iv     = options[:iv]  || cipher.random_iv
+
+		# Otherwise, set the default cryptographic settings
 		else
-			@cipher       = cipher
-			cipher        = OpenSSL::Cipher.new(cipher)
-			@key          = options[:key]          || cipher.random_key
-			@iv           = options[:iv]           || cipher.random_iv
-			@payload_spec = options[:payload_spec] || self.class.payload_spec
+			@cipher = self.class.cipher
+			@key    = self.class.key
+			@iv     = self.class.iv
 		end
+
+		# Set the payload specification
+		@payload_spec = options[:payload_spec] || self.class.payload_spec
 	end
 
 	# Creates a token consisting of the given payload and expiration date.
+	#
+	# @param payload [Array] the payload to embed in the token -- this may be a
+	#   scalar if the payload_spec only specifies a singl field
+	# @param expires [Time] the time after which the token should be considered
+	#   expired
+	# @return [String] the generated token
 	def generate(payload, expires)
+
+		# Pack the token
 		token = [
 			expires.to_i,
 			payload
@@ -41,8 +69,14 @@ class Token
 		token = crypt.update(token) + crypt.final
 	end
 
-	# Verifies the validity of the given token and returns the associated payload
-	# and a replacement token, if successful.
+	# Verifies the validity of the given token and, if successful, returns the
+	# associated payload.
+	#
+	# @param token [String] the token to verify
+	# @return [Array] the payload -- this will be a scalar depending on the
+	#   setting for payload_spec
+	# @raise [Token::Error] if the token fails to decrypt, is not signed
+	#   properly, or is expired
 	def verify(token)
 
 		# Decrypt the token
@@ -70,45 +104,76 @@ class Token
 	end
 
 	class << self
-		attr_reader :cipher, :key, :iv, :payload_spec
+		attr_reader :cipher, :payload_spec
 
-		# Set the default cipher
+		# Sets the class default cipher.  Note that the key and initialization
+		# vector will be cleared, and if not manually reset, will be regenerated
+		# randomly when necessary.
+		#
+		# @param cipher [String] the cipher to use with OpenSSL
 		def cipher=(cipher)
-			@cipher   = cipher
-			@key      = OpenSSL::Cipher.new(@cipher).random_key
-			@iv       = OpenSSL::Cipher.new(@cipher).random_iv
-			@instance = nil
+			@cipher = cipher
+			@key = @iv = @instance = nil
 		end
 
-		# Set the default key
+		# Gets the class default encryption key, generating a new one if necessary.
+		#
+		# @return [String] the class default encryption key
+		def key
+			@key ||= OpenSSL::Cipher.new(@cipher).random_key
+		end
+
+		# Set the class default encryption key.
+		#
+		# @param key [String] the key to use with OpenSSL
 		def key=(key)
 			@key      = key
 			@instance = nil
 		end
 
-		# Set the default initialization vector
+		# Gets the class default encryption initialization vector, generating a new
+		# one if necessary.
+		#
+		# @return [String] the class default initialization vector
+		def iv
+			@iv ||= OpenSSL::Cipher.new(@cipher).random_iv
+		end
+
+		# Set the class default initialization vector.
+		#
+		# @param iv [String] the initialization vector to use with OpenSSL
 		def iv=(iv)
 			@iv       = iv
 			@instance = nil
 		end
 
-		# Set the token specification
+		# Set the class default token specification.
+		#
+		# @param spec [String] the specification describing the format of the
+		#   payloads.  Should be in the format expected by Array.pack
 		def payload_spec=(spec)
 			@payload_spec = spec
 			@instance     = nil
 		end
 
-		# Allow generate to be called on the class
+		# Generates a token using the class default cryptographic settings and
+		# token specification.
+		#
+		# @see Token#generate
 		def generate(payload, expires)
 			instance.generate(payload, expires)
 		end
 
-		# Allow verify to be called on the class
+		# Verifies the validity of a token using the class default cryptographic
+		# settings and token specification.
+		#
+		# @see Token#verify
 		def verify(token)
 			instance.verify(token)
 		end
 
-		# Reset class parameters to defaults
+		# Resets the cipher to 'AES-256-CFB', the payload specification to 'L', and
+		# the key and initialization vectors to random values.
 		def reset
 			@cipher       = 'AES-256-CFB'
 			cipher        = OpenSSL::Cipher.new(@cipher)
@@ -119,10 +184,12 @@ class Token
 
 		private
 
-		# Retrieve the default instance
+		# Retrieve the default instance.
 		def instance
 			@instance ||= new
 		end
 	end
+
+	# Set the default settings when loading the class
 	self.reset
 end
