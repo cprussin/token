@@ -32,9 +32,10 @@ follows:
 ```ruby
 require 'token'
 
-Token.cipher = 'AES-256-CFB'
-Token.key    = OpenSSL::Cipher.new(Token.cipher).random_key
-Token.iv     = OpenSSL::Cipher.new(Token.cipher).random_iv
+Token.cipher       = 'AES-256-CFB'
+Token.key          = OpenSSL::Cipher.new(Token.cipher).random_key
+Token.iv           = OpenSSL::Cipher.new(Token.cipher).random_iv
+Token.payload_spec = 'L'
 ```
 
 You can reset the class to its default cipher with a new random key and
@@ -44,8 +45,7 @@ initialization vector by using `Token.reset`.
 
 When tokens are generated, three parameters must by specified:
 
- * An integer payload.  The intent of this field is to be used as a UID.  This
-   value is returned upon successful token verification.
+ * A payload.  By default, this is a single integer value.
  * The IP address to assign to this token.
  * The `Time` after which verification of this token should fail.
 
@@ -81,6 +81,28 @@ token = Token.generate(0, '0.0.0.0', Time.now + 5)
 
 Token.verify(token, '0.0.0.0', Time.now + 5)  # => [0, "..."]
 ```
+
+### Modify the Payload Format
+
+By default, the payload of the token is a single integer value.  This is useful
+when you are handling login, as it can specify the ID of the user with the
+token.  However, sometimes applications require tokens with more intricate
+payloads.
+
+To change the format of the payload to contain multiple values or different
+formats, modify the `payload_spec` parameter.  This parameter should be in the
+same format as expected by `Array.pack`.  The default value is `'L'`.
+
+```ruby
+Token.payload_spec = 'LA3'
+token = Token.generate([0, 'foo'], '0.0.0.0', Time.now + 5)
+Token.verify(token, '0.0.0.0')                # => [0, 'foo']
+Token.verify(token, '0.0.0.0', Time.now + 5)  # => [[0, 'foo'], "..."]
+```
+
+Note that if the `payload_spec` only contains a single field, then the payload
+argument to `Token.generate` can be a scalar. Otherwise, the argument must be
+an array.
 
 ### Instances of the Token Class
 
