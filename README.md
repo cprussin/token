@@ -108,7 +108,8 @@ an array.
 
 You can create instances of the `Token` class and use the instances to generate
 and verify tokens.  This is useful if you use tokens for multiple purposes in
-your application and each purpose uses different cryptographic parameters.
+your application and each purpose uses different cryptographic parameters or
+payload formats.
 
 ```ruby
 key = OpenSSL::Cipher.new('AES-128-CFB').random_key

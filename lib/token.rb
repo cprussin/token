@@ -4,7 +4,7 @@ require 'openssl'
 class Token
 	class Error < Exception; end
 
-	attr_accessor :cipher, :key, :iv
+	attr_accessor :cipher, :key, :iv, :payload_spec
 
 	# Create a new token generator.
 	def initialize(cipher = nil, options = {})
