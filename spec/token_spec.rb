@@ -94,7 +94,7 @@ describe Token do
 
 	context 'with a custom payload specification' do
 		before :each do
-			Token.payload_spec = 'LA4'
+			Token.payload_spec = 'LA*'
 		end
 
 		it_behaves_like 'a Token class' do

@@ -94,7 +94,7 @@ formats, modify the `payload_spec` parameter.  This parameter should be in the
 same format as expected by `Array.pack`.  The default value is `'L'`.
 
 ```ruby
-Token.payload_spec = 'LA3'
+Token.payload_spec = 'LA*'
 token = Token.generate([0, 'foo'], '0.0.0.0', Time.now + 5)
 Token.verify(token, '0.0.0.0')                # => [0, 'foo']
 Token.verify(token, '0.0.0.0', Time.now + 5)  # => [[0, 'foo'], "..."]

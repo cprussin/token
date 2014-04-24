@@ -9,7 +9,6 @@ class Token
 	# Create a new token generator.
 	def initialize(cipher = nil, options = {})
 		if cipher.nil?
-			self.class.reset if self.class.cipher.nil?
 			@cipher       = self.class.cipher
 			@key          = self.class.key
 			@iv           = self.class.iv
@@ -27,14 +26,14 @@ class Token
 	# date.
 	def generate(payload, ip, expires)
 		token = [
-			payload,
 			ip.split('.').map(&:to_i),
-			expires.to_i
+			expires.to_i,
+			payload
 		]
-		token = token.flatten.pack("#{@payload_spec}CCCCL")
+		token = token.flatten.pack("CCCCL#{@payload_spec}")
 
-		# Append the token's hash
-		token += Digest::SHA256.hexdigest(token)
+		# Prepend the token's hash
+		token.prepend(Digest::SHA256.hexdigest(token))
 
 		# Encrypt the token
 		crypt = OpenSSL::Cipher.new(@cipher)
@@ -56,19 +55,19 @@ class Token
 		tok = crypt.update(token) + crypt.final
 
 		# Split the token
-		tok = tok.unpack("#{@payload_spec}CCCCLA*")
+		tok = tok.unpack("A64CCCCL#{@payload_spec}")
 
 		# Validate the token
-		time_valid = Time.at(tok[-2]) > Time.now
-		ip_valid = ip == tok[-6..-3].join('.')
-		hash = Digest::SHA256.hexdigest(tok[0..-1].pack("#{@payload_spec}CCCCL"))
-		hash_valid = hash == tok[-1]
+		time_valid = Time.at(tok[5]) > Time.now
+		ip_valid = ip == tok[1..4].join('.')
+		hash = Digest::SHA256.hexdigest(tok[1..-1].pack("CCCCL#{@payload_spec}"))
+		hash_valid = hash == tok[0]
 		unless time_valid && ip_valid && hash_valid
 			raise Error, 'Session is invalid'
 		end
 
 		# Return the payload and the replacement token
-		payload = tok.length == 7 ? tok.first : tok[0..-7]
+		payload = tok.length == 7 ? tok.last : tok[6..-1]
 		if !extension_expires.nil?
 			[payload, generate(payload, ip, extension_expires)]
 		else
@@ -78,7 +77,6 @@ class Token
 
 	class << self
 		attr_reader :cipher, :key, :iv, :payload_spec
-		@payload_spec = 'L'
 
 		# Set the default cipher
 		def cipher=(cipher)
@@ -129,8 +127,8 @@ class Token
 
 		# Retrieve the default instance
 		def instance
-			reset unless defined? @cipher
 			@instance ||= new
 		end
 	end
+	self.reset
 end
