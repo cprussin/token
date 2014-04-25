@@ -3,7 +3,19 @@ require 'openssl'
 # This class provides token creation and validation.  It can be used as a
 # singleton or by creating instances.
 class Token
-	attr_accessor :cipher, :key, :iv, :format
+
+	# The cipher to use with OpenSSL
+	attr_accessor :cipher
+
+	# The key to use with OpenSSL
+	attr_accessor :key
+
+	# The initialization vector to use with OpenSSL
+	attr_accessor :iv
+
+	# The format of the payload.  This string should be in the format expected by
+	# Array.pack
+	attr_accessor :format
 
 	# All token errors raise an exception of this class.
 	class Error < Exception; end
@@ -104,53 +116,39 @@ class Token
 	end
 
 	class << self
-		attr_reader :cipher, :format
 
-		# Sets the class default cipher.  Note that the key and initialization
-		# vector will be cleared, and if not manually reset, will be regenerated
-		# randomly when necessary.
-		#
-		# @param cipher [String] the cipher to use with OpenSSL
+		# The class default cipher.  Note that when setting the cipher, the key and
+		# initialization vector are cleared.
+		attr_accessor :cipher
 		def cipher=(cipher)
 			@cipher = cipher
 			@key = @iv = @instance = nil
 		end
 
-		# Gets the class default encryption key, generating a new one if necessary.
-		#
-		# @return [String] the class default encryption key
+		# The class default encryption key.  Randomly generated when necessary if
+		# unset.
+		attr_accessor :key
 		def key
 			@key ||= OpenSSL::Cipher.new(@cipher).random_key
 		end
-
-		# Set the class default encryption key.
-		#
-		# @param key [String] the key to use with OpenSSL
 		def key=(key)
 			@key      = key
 			@instance = nil
 		end
 
-		# Gets the class default encryption initialization vector, generating a new
-		# one if necessary.
-		#
-		# @return [String] the class default initialization vector
+		# The class default encryption initialization vector.  Randomly generated
+		# when necessary if unset.
+		attr_accessor :iv
 		def iv
 			@iv ||= OpenSSL::Cipher.new(@cipher).random_iv
 		end
-
-		# Set the class default initialization vector.
-		#
-		# @param iv [String] the initialization vector to use with OpenSSL
 		def iv=(iv)
 			@iv       = iv
 			@instance = nil
 		end
 
-		# Set the class default token payload format.
-		#
-		# @param format [String] the string describing the format of the payloads.
-		#   Should be in the format expected by Array.pack
+		# The class default token payload format.
+		attr_accessor :format
 		def format=(format)
 			@format   = format
 			@instance = nil
