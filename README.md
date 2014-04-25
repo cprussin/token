@@ -52,7 +52,7 @@ An example of generating a token is:
 
 ```ruby
 in_one_day = Time.now + 60 * 60 * 24
-token = Token.generate(0, in_one_day)
+token      = Token.generate(0, in_one_day)
 ```
 
 ### Verify a token

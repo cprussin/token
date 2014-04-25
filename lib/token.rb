@@ -77,8 +77,8 @@ class Token
 		crypt = OpenSSL::Cipher.new(@cipher)
 		crypt.encrypt
 		crypt.key = @key
-		crypt.iv = @iv
-		token = crypt.update(token) + crypt.final
+		crypt.iv  = @iv
+		token     = crypt.update(token) + crypt.final
 	end
 
 	# Verifies the validity of the given token and, if successful, returns the
@@ -96,8 +96,8 @@ class Token
 			crypt = OpenSSL::Cipher.new(@cipher)
 			crypt.decrypt
 			crypt.key = @key
-			crypt.iv = @iv
-			tok = crypt.update(token) + crypt.final
+			crypt.iv  = @iv
+			tok       = crypt.update(token) + crypt.final
 		rescue
 			raise Error, 'Session is invalid'
 		end
