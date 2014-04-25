@@ -3,17 +3,17 @@ require 'rspec/core/rake_task'
 
 # Clean working directory
 desc 'Remove generated files'
-task (:clean) {`rm -rf .yardoc doc token-*.gem`}
+task (:clean) {system 'rm -rf .yardoc doc token-*.gem'}
 
 # Gem build
 desc 'Build the gem'
-task (:build) {`gem build token.gemspec`}
+task (:build) {system 'gem build token.gemspec'}
 
 # Push the gem to the rubygems server
 desc 'Push the gem'
 task (:push) do
 	require "#{File.dirname(__FILE__)}/lib/token/version"
-	`gem push token-#{Token::VERSION}`
+	system "gem push token-#{Token::VERSION}"
 end
 
 # Generate YARD documentation
