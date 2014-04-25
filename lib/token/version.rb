@@ -1,3 +1,4 @@
 class Token
-	VERSION = '1.1.2'
+	# The current release version of the library
+	VERSION = '1.2.0'
 end
