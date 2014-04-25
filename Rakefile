@@ -1,6 +1,10 @@
 require 'yard'
 require 'rspec/core/rake_task'
 
+# Clean working directory
+desc 'Remove generated files'
+task (:clean) {`rm -rf .yardoc doc token-*.gem`}
+
 # Gem build
 desc 'Build the gem'
 task (:build) {`gem build token.gemspec`}
