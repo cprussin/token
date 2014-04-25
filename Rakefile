@@ -9,6 +9,13 @@ task (:clean) {`rm -rf .yardoc doc token-*.gem`}
 desc 'Build the gem'
 task (:build) {`gem build token.gemspec`}
 
+# Push the gem to the rubygems server
+desc 'Push the gem'
+task (:push) do
+	require "#{File.dirname(__FILE__)}/lib/token/version"
+	`gem push token-#{Token::VERSION}`
+end
+
 # Generate YARD documentation
 YARD::Rake::YardocTask.new
 
