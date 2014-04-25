@@ -88,7 +88,7 @@ Token.verify(token)  # => [15, 0, 0, 0, 0, 'foo']
 Note that if the `format` only contains a single field, then the payload
 argument to `Token.generate` can be a scalar. Otherwise, the argument must be
 an array.  The array will be automatically flattened when generating the token,
-and `verify` will always return a flat array.
+and `verify` will always return a flat array or scalar.
 
 ### Instances of the Token Class
 
@@ -98,22 +98,11 @@ your application and each purpose uses different cryptographic parameters or
 payload formats.
 
 ```ruby
-aes_key = OpenSSL::Cipher.new('AES-128-CFB').random_key
-aes_iv  = OpenSSL::Cipher.new('AES-128-CFB').random_iv
-aes     = Token.new('AES-128-CFB', key: aes_key, iv: aes_iv)
-
-des_key = OpenSSL::Cipher.new('DES3').random_key
-des_iv  = OpenSSL::Cipher.new('DES3').random_iv
-des     = Token.new('DES3', key: des_key, iv: des_iv)
-
-aes_token = aes.generate(0, Time.now + 5)
-des_token = des.generate(0, Time.now + 5)
-
-aes.verify(aes_token)  # => 0
-des.verify(des_token)  # => 0
-
-aes.verify(des_token)  # => raises Token::Error
-des.verify(aes_token)  # => raises Token::Error
+key   = OpenSSL::Cipher.new('AES-128-CFB').random_key
+iv    = OpenSSL::Cipher.new('AES-128-CFB').random_iv
+tok   = Token.new('AES-128-CFB', key: aes_key, iv: aes_iv)
+token = tok.generate(0, Time.now + 5)
+tok.verify(token)  # => 0
 ```
 
 If you call `Token.new` without any arguments then it will create a Token class
