@@ -54,9 +54,9 @@ describe Token do
 		end
 	end
 
-	context 'with a custom payload specification' do
+	context 'with a custom payload format' do
 		before :each do
-			Token.payload_spec = 'LA*'
+			Token.format = 'LA*'
 		end
 
 		after :each do
@@ -90,9 +90,9 @@ describe Token do
 			end
 		end
 
-		context 'with a custom payload specification' do
+		context 'with a custom payload format' do
 			before :each do
-				generator1.payload_spec = 'A*'
+				generator1.format = 'A*'
 			end
 
 			it_behaves_like 'a token generator' do

@@ -32,10 +32,10 @@ follows:
 ```ruby
 require 'token'
 
-Token.cipher       = 'AES-256-CFB'
-Token.key          = OpenSSL::Cipher.new(Token.cipher).random_key
-Token.iv           = OpenSSL::Cipher.new(Token.cipher).random_iv
-Token.payload_spec = 'L'
+Token.cipher = 'AES-256-CFB'
+Token.key    = OpenSSL::Cipher.new(Token.cipher).random_key
+Token.iv     = OpenSSL::Cipher.new(Token.cipher).random_iv
+Token.format = 'L'
 ```
 
 You can reset the class to its default cipher with a new random key and
@@ -75,17 +75,17 @@ token.  However, sometimes applications require tokens with more intricate
 payloads.
 
 To change the format of the payload to contain multiple values or different
-formats, modify the `payload_spec` parameter.  This parameter should be in the
-same format as expected by `Array.pack`.  The default value is `'L'`.
+formats, modify the `format` parameter.  This parameter should be in the same
+format as expected by `Array.pack`.  The default value is `'L'`.
 
 ```ruby
-Token.payload_spec = 'LCCCCA*'
-ip_address = '0.0.0.0'.split('.').map(&:to_i)
-token = Token.generate([15, ip_address, 'foo'], Time.now + 5)
+Token.format = 'LCCCCA*'
+ip_address   = '0.0.0.0'.split('.').map(&:to_i)
+token        = Token.generate([15, ip_address, 'foo'], Time.now + 5)
 Token.verify(token)  # => [15, 0, 0, 0, 0, 'foo']
 ```
 
-Note that if the `payload_spec` only contains a single field, then the payload
+Note that if the `format` only contains a single field, then the payload
 argument to `Token.generate` can be a scalar. Otherwise, the argument must be
 an array.  The array will be automatically flattened when generating the token,
 and `verify` will always return a flat array.

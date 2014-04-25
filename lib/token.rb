@@ -3,7 +3,7 @@ require 'openssl'
 # This class provides token creation and validation.  It can be used as a
 # singleton or by creating instances.
 class Token
-	attr_accessor :cipher, :key, :iv, :payload_spec
+	attr_accessor :cipher, :key, :iv, :format
 
 	# All token errors raise an exception of this class.
 	class Error < Exception; end
@@ -19,9 +19,9 @@ class Token
 	# @option options [String] :iv The initialization vector to use with OpenSSL.
 	#   Defaults to a random vector.  Do not specify without also specifying
 	#   cipher
-	# @option options [String] :payload_spec The specification describing the
-	#   format of the payloads.  Should be in the format expected by Array.pack.
-	#   Defaults to 'L'
+	# @option options [String] :format The string describing the format of the
+	#   payloads.  Should be in the format expected by Array.pack.  Defaults to
+	#   'L'
 	def initialize(options = {})
 
 		# Check to see if there are custom cryptographic settings
@@ -38,14 +38,14 @@ class Token
 			@iv     = self.class.iv
 		end
 
-		# Set the payload specification
-		@payload_spec = options[:payload_spec] || self.class.payload_spec
+		# Set the payload format
+		@format = options[:format] || self.class.format
 	end
 
 	# Creates a token consisting of the given payload and expiration date.
 	#
 	# @param payload [Array] the payload to embed in the token -- this may be a
-	#   scalar if the payload_spec only specifies a singl field
+	#   scalar if the payload format only specifies a single field
 	# @param expires [Time] the time after which the token should be considered
 	#   expired
 	# @return [String] the generated token
@@ -56,7 +56,7 @@ class Token
 			expires.to_i,
 			payload
 		]
-		token = token.flatten.pack("L#{@payload_spec}")
+		token = token.flatten.pack("L#{@format}")
 
 		# Prepend the token's hash
 		token.prepend(Digest::SHA256.hexdigest(token))
@@ -74,7 +74,7 @@ class Token
 	#
 	# @param token [String] the token to verify
 	# @return [Array] the payload -- this will be a scalar depending on the
-	#   setting for payload_spec
+	#   setting for format
 	# @raise [Token::Error] if the token fails to decrypt, is not signed
 	#   properly, or is expired
 	def verify(token)
@@ -91,11 +91,11 @@ class Token
 		end
 
 		# Split the token
-		tok = tok.unpack("A64L#{@payload_spec}")
+		tok = tok.unpack("A64L#{@format}")
 
 		# Validate the token
 		time_valid = Time.at(tok[1]) > Time.now
-		hash = Digest::SHA256.hexdigest(tok[1..-1].pack("L#{@payload_spec}"))
+		hash       = Digest::SHA256.hexdigest(tok[1..-1].pack("L#{@format}"))
 		hash_valid = hash == tok[0]
 		raise Error, 'Session is invalid' unless time_valid && hash_valid
 
@@ -104,7 +104,7 @@ class Token
 	end
 
 	class << self
-		attr_reader :cipher, :payload_spec
+		attr_reader :cipher, :format
 
 		# Sets the class default cipher.  Note that the key and initialization
 		# vector will be cleared, and if not manually reset, will be regenerated
@@ -147,17 +147,17 @@ class Token
 			@instance = nil
 		end
 
-		# Set the class default token specification.
+		# Set the class default token payload format.
 		#
-		# @param spec [String] the specification describing the format of the
-		#   payloads.  Should be in the format expected by Array.pack
-		def payload_spec=(spec)
-			@payload_spec = spec
-			@instance     = nil
+		# @param format [String] the string describing the format of the payloads.
+		#   Should be in the format expected by Array.pack
+		def format=(format)
+			@format   = format
+			@instance = nil
 		end
 
 		# Generates a token using the class default cryptographic settings and
-		# token specification.
+		# payload format.
 		#
 		# @see Token#generate
 		def generate(payload, expires)
@@ -165,21 +165,21 @@ class Token
 		end
 
 		# Verifies the validity of a token using the class default cryptographic
-		# settings and token specification.
+		# settings and payload format.
 		#
 		# @see Token#verify
 		def verify(token)
 			instance.verify(token)
 		end
 
-		# Resets the cipher to 'AES-256-CFB', the payload specification to 'L', and
-		# the key and initialization vectors to random values.
+		# Resets the cipher to 'AES-256-CFB', the payload format to 'L', and the
+		# key and initialization vectors to random values.
 		def reset
-			@cipher       = 'AES-256-CFB'
-			cipher        = OpenSSL::Cipher.new(@cipher)
-			@key          = cipher.random_key
-			@iv           = cipher.random_iv
-			@payload_spec = 'L'
+			@cipher = 'AES-256-CFB'
+			cipher  = OpenSSL::Cipher.new(@cipher)
+			@key    = cipher.random_key
+			@iv     = cipher.random_iv
+			@format = 'L'
 		end
 
 		private
