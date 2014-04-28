@@ -26,8 +26,8 @@ gem 'token'
 ### Setup
 
 The Token class defaults to using the `AES-246-CFB` cipher with a randomly
-generated key and initialization vector.  These defaults can be overridden as
-follows:
+generated key and initialization vector, and the payload format as a single
+integer value.  These defaults can be overridden as follows:
 
 ```ruby
 require 'token'
@@ -38,8 +38,8 @@ Token.iv     = OpenSSL::Cipher.new(Token.cipher).random_iv
 Token.format = 'L'
 ```
 
-You can reset the class to its default cipher with a new random key and
-initialization vector by using `Token.reset`.
+You can reset the class to its default payload format and default cipher with
+a new random key and initialization vector by using `Token.reset`.
 
 ### Generate a Token
 
@@ -100,7 +100,7 @@ payload formats.
 ```ruby
 key   = OpenSSL::Cipher.new('AES-128-CFB').random_key
 iv    = OpenSSL::Cipher.new('AES-128-CFB').random_iv
-tok   = Token.new('AES-128-CFB', key: aes_key, iv: aes_iv)
+tok   = Token.new('AES-128-CFB', key: key, iv: iv)
 token = tok.generate(0, Time.now + 5)
 tok.verify(token)  # => 0
 ```
