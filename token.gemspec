@@ -7,8 +7,8 @@ Gem::Specification.new do |s|
 	s.platform    = Gem::Platform::RUBY
 	s.authors     = ['Connor Prussin']
 	s.email       = %w(cprussin@bci-incorporated.com)
-	s.homepage    = 'http://cprussin.net/#token'
-	s.summary     = %q(A library for generating and verifying signed tokens.)
+	s.homepage    = 'http://cprussin.net/token'
+	s.summary     = %q(A library that generates and verifies cryptographically secure, signed tokens.)
 	s.licenses    = %w(WTFPL)
 
 	readme        = File.open('README.md', 'r').each_line.to_a
