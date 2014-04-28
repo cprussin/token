@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
 
 	s.add_development_dependency 'rspec', '~> 2.14', '>= 2.14.1'
 	s.add_development_dependency 'rake'
+	s.add_development_dependency 'yard'
 
 	s.files         = `git ls-files`.split($/)
 	s.test_files    = `git ls-files -- spec/*`.split($/)
