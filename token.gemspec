@@ -17,8 +17,9 @@ Gem::Specification.new do |s|
 	s.description = readme[description, install].join.gsub("\n", ' ').chomp(' ')
 
 	s.add_development_dependency 'rspec', '~> 2.14', '>= 2.14.1'
-	s.add_development_dependency 'rake'
-	s.add_development_dependency 'yard'
+	s.add_development_dependency 'rake', '~> 10.3', '>= 10.3.1'
+	s.add_development_dependency 'redcarpet', '~> 3.1', '>= 3.1.1'
+	s.add_development_dependency 'yard', '~> 0.8.7', '>= 0.8.7.4'
 
 	s.files         = `git ls-files`.split($/)
 	s.test_files    = `git ls-files -- spec/*`.split($/)
