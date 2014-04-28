@@ -1,6 +1,6 @@
 # [Token](http://cprussin.net/token)
 
-[![Gem Version](https://badge.fury.io/rb/token.svg)](http://rubygems.org/gems/token) [![Build Status](https://travis-ci.org/cprussin/token.svg?branch=master)](https://travis-ci.org/cprussin/token) [![Code Climate](https://codeclimate.com/github/cprussin/token.png)](https://codeclimate.com/github/cprussin/token) [![Dependency Status](https://gemnasium.com/cprussin/token.svg)](https://gemnasium.com/cprussin/token)
+[![Gem Version](https://badge.fury.io/rb/token.svg)](http://rubygems.org/gems/token) [![Build Status](https://api.travis-ci.org/cprussin/token.svg?branch=master)](https://travis-ci.org/cprussin/token) [![Code Climate](https://codeclimate.com/github/cprussin/token.png)](https://codeclimate.com/github/cprussin/token) [![Dependency Status](https://gemnasium.com/cprussin/token.svg)](https://gemnasium.com/cprussin/token)
 
 ## Description
 
