@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
 	s.platform    = Gem::Platform::RUBY
 	s.authors     = ['Connor Prussin']
 	s.email       = %w(cprussin@bci-incorporated.com)
-	s.homepage    = 'https://github.com/cprussin/token'
+	s.homepage    = 'http://cprussin.net/#token'
 	s.summary     = %q(A library for generating and verifying signed tokens.)
 	s.licenses    = %w(WTFPL)
 
