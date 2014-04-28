@@ -1,6 +1,6 @@
 # [Token](http://cprussin.net/token)
 
-[![Gem Version](https://badge.fury.io/rb/token.svg)](http://rubygems.org/gems/token)
+[![Gem Version](https://badge.fury.io/rb/token.svg)](http://rubygems.org/gems/token) [![Dependency Status](https://gemnasium.com/cprussin/token.svg)](https://gemnasium.com/cprussin/token)
 
 ## Description
 
