@@ -1,4 +1,4 @@
-<h1>Token</h1> [Homepage](http://cprussin.net/token)
+# [Token](http://cprussin.net/token)
 
 [![Gem Version](https://badge.fury.io/rb/token.svg)](http://rubygems.org/gems/token)
 
