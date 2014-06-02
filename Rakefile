@@ -21,7 +21,7 @@ YARD::Rake::YardocTask.new
 
 # Test gem
 RSpec::Core::RakeTask.new do |t|
-	t.rspec_opts = %w(--color --format nested)
+	t.rspec_opts = %w(--color --format documentation)
 end
 
 # By default, test, generate documentation, and build
